@@ -1,0 +1,23 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+{% block visualiation_libraries %}{% endblock %}
+{% block date_picker_libraries %}{% endblock %}
+
+
+{% block title %}Contacto{% endblock %}
+
+
+{% block visualization %}
+    <form method="post">{% csrf_token %}
+        {% for field in form %}
+            <div class="fieldWrapper">
+                {{ field.errors }}
+                <label class="sr-only">{{ field.label }}</label> 
+                {{ field }}
+            </div>
+        {% endfor %}
+        <input type="submit" value="Enviar">
+    </form>
+{% endblock %}
+ 

@@ -1,0 +1,71 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+
+{% block custom_scripts  %}
+    <script src="{% static 'GCEstadisticas/Bubble.js' %}"></script>
+{% endblock %}
+
+
+{% block title %}Gastos por Entidad{% endblock %}
+
+
+{% block date_picker %}
+    <div class="input-daterange input-group" id="datepicker">
+        <input type="text" class="input-sm form-control" name="start" value="{{start_date}}" autocomplete="off" />
+        <span class="input-group-addon">a</span>
+        <input type="text" class="input-sm form-control" name="end" value="{{end_date}}" autocomplete="off" />
+    </div>
+    <span class="input-group">
+        <button id="btnActualizar" class="btn btn-default" type="button">Actualizar</button>
+    </span>    
+{% endblock %}
+
+
+{% block visualization %}
+    <div class="row">
+        <button id="btnAdjudicados" class="btn btn-success" type="button">Proveedores adjudicados</button>
+        <button id="btnParticiparon" class="btn btn-info" type="button">Proveedores que participaron</button>
+        <button id="btnNogs" class="btn btn-warning" type="button">Cantidad de nogs</button>
+    </div>
+    <div id="visualization" class="visualization">
+    </div>
+{% endblock %}
+
+
+{% block visualization_code %}
+    <script>
+
+        jQuery('.input-daterange').datepicker({
+            language: "es",
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+
+        jQuery(document).ready(function() {
+            gbe = Object.create(Bubble);
+            varRadius = 't_ammount';
+            coloringVar = ['t_suppliers_awarded','t_suppliers_proposed','t_nogs'];
+            coloringTipLabels = ["Proveedores que ganaron adjudicación (almenos una vez): ", "Proveedores que hicieron propuestas: ", "Cantidad de NOGs: "];
+            gbe.setup("#visualization",0,0,"{{start_date}}","{{end_date}}",varRadius,coloringVar, coloringTipLabels, "entidad");
+            d3.json("{% url 'visualizaciones:entidad_comparativo' %}json/{{start_date}}/{{end_date}}", gbe.draw);
+        });
+
+        jQuery('#btnActualizar').on('click', function(event){
+            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            d3.json("{% url 'visualizaciones:entidad_comparativo' %}json/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val(), gbe.draw);
+        });
+
+        jQuery('#btnAdjudicados').on('click', function(event){
+            gbe.refreshColor(0);
+        });
+
+        jQuery('#btnParticiparon').on('click', function(event){
+            gbe.refreshColor(1);
+        });
+
+        jQuery('#btnNogs').on('click', function(event){
+            gbe.refreshColor(2);
+        });
+    </script>
+{% endblock %}

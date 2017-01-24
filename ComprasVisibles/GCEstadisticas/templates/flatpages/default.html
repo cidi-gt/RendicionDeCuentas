@@ -1,0 +1,18 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+{% block visualiation_libraries %}{% endblock %}
+{% block date_picker_libraries %}{% endblock %}
+
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+
+
+{% block visualization %}
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1">
+        {{ flatpage.content }}
+    </div>
+</div>
+{% endblock %}
+ 

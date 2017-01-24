@@ -1,0 +1,139 @@
+{% load staticfiles %}
+{% load flatpages %}
+{% get_flatpages as flatpages %}
+<html>
+    <head>
+        <title>Compras Visibles | Visualizaciones GuateCompras</title>
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="{% static 'GCEstadisticas/style.css' %}" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        {% block visualiation_libraries %}
+            <script src="http://d3js.org/d3.v3.min.js"></script>
+            <script src="{% static 'GCEstadisticas/utils.js' %}"></script>
+            <script src="{% static 'GCEstadisticas/D3Visualization.js' %}"></script>
+            <script src="http://spin.js.org/spin.min.js"></script>
+        {% endblock %}
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Oswald|Hind|Anton" rel="stylesheet"> 
+        {% block date_picker_libraries %}
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.css" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/locales/bootstrap-datepicker.es.min.js"></script>
+            <script>
+                //spinner options
+                var spOpts = {
+                  lines: 8
+                , length: 16 // The length of each line
+                , width: 14 // The line thickness
+                , radius: 20 // The radius of the inner circle
+                , scale: 1 // Scales overall size of the spinner
+                , corners: 1 // Corner roundness (0..1)
+                , color: '#2C5981' // #rgb or #rrggbb or array of colors
+                , opacity: 0.25 // Opacity of the lines
+                , rotate: 0 // The rotation offset
+                , direction: 1 // 1: clockwise, -1: counterclockwise
+                , speed: 1.5 // Rounds per second
+                , trail: 60 // Afterglow percentage
+                , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+                , zIndex: 2e9 // The z-index (defaults to 2000000000)
+                , className: 'spinner' // The CSS class to assign to the spinner
+                , top: '50%' // Top position relative to parent
+                , left: '50%' // Left position relative to parent
+                , shadow: false // Whether to render a shadow
+                , hwaccel: false // Whether to use hardware acceleration
+                , position: 'absolute' // Element positioning
+                }
+            </script>
+        {% endblock %}
+        {% block custom_scripts %}
+        {% endblock %}
+    </head>
+    <body>
+		<div class="container-fluid" id="pageHead">
+			<div class="row">
+				<div class="col-xs-12 col-md-4 col-lg-2">
+				    <span id="logo"><a href="{% url 'visualizaciones:index' %}">LOGOTIPO</a></span>
+				</div>
+				<div class="col-xs-12 col-md-8 col-lg-10">
+                    <nav class="navbar navbar-default pull-right">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#menu" aria-expanded="false">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="collapse navbar-collapse" id="menu">
+                            {% get_flatpages as flatpages %}
+                            <ul class="nav navbar-nav">
+                                <li class="menu-item {% if request.path|slice:'0:16' == '/visualizaciones' %}active{% endif %}"><a href="/visualizaciones/">Visualizaciones</a></li>
+                                {% for page in flatpages|dictsort:"id" %}
+                                    <li class="menu-item {% if '/info'|add:page.url == request.path %}active{% endif %}"><a href="/info{{ page.url }}">{{ page.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </nav>
+				</div>
+			</div>
+		</div>
+		<div id="pageContent">
+            <div class="container" id="content">
+                <div class="row">
+                    <h2 class="itemTitle">{% block title %}{% endblock %}</h2>
+                </div>
+                <div id="itemInfo" class="row">
+                    {% block info %}{% endblock %}
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-6">
+                        {% block date_picker %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        {% block added_filters %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        {% block visualization %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="pageFooter">
+		    <div class="container">
+			    <div class="row">
+				    <div class="col-xs-12 col-sm-8 col-sm-offset-4 col-md-5 col-md-offset-7">
+			            <div id="contactForm">
+			                <h3>Contacto</h3>
+                            <form action="{{ form_feedback }}" method="post">{% csrf_token %}
+                                {% for field in form %}
+                                        <div class="fieldWrapper">
+                                            {{ field.errors }}
+                                            <label class="sr-only">{{ field.label }}</label> 
+                                            {{ field }}
+                                        </div>
+                                {% endfor %}
+                                <input class="pull-right" id="sendButton" type="submit" value="Enviar" onclick="getSelectedDates();">
+                            </form>
+                        </div>
+				    </div>
+			    </div>
+		    </div>
+	    </div>
+    </body>
+    <script>
+        function getSelectedDates(){
+            //if there are input dates on the page, send them
+            jQuery('#id_start_date').val(jQuery('input[name=start]').val());
+            jQuery('#id_end_date').val(jQuery('input[name=end]').val());
+        }
+    </script>
+    {% block visualization_code %}
+    {% endblock %}
+</html>

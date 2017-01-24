@@ -1,0 +1,25 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+{% block visualiation_libraries %}{% endblock %}
+{% block date_picker_libraries %}{% endblock %}
+
+
+{% block title %}Entidades{% endblock %}
+
+
+{% block visualization %}
+    {% if entidades %}
+        {% for key,value in entidades %}
+            <h3>{{ key }}</h3>
+            <ul>
+                {% for ent in value %}
+                    <li><a href="{% url 'visualizaciones:entidad_item' ent.id %}">{{ ent.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% else %}
+        <p>No hay opciones disponibles</p>
+    {% endif %}
+{% endblock %}
+

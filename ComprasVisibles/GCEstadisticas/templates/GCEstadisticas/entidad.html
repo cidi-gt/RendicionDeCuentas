@@ -1,0 +1,125 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+
+{% block custom_scripts %}
+    <script src="{% static 'GCEstadisticas/Bubble.js' %}"></script>
+    <script src="{% static 'GCEstadisticas/Sunburst.js' %}"></script>
+    <script src="{% static 'GCEstadisticas/ComposedBar.js' %}"></script>
+    <script src="{% static 'GCEstadisticas/PunchCard.js' %}"></script>
+{% endblock %}
+
+
+{% block title %}{{ entidad.name }}{% endblock %}
+
+{% block info %}
+    <div class="row">
+        <div class="col-xs-12">
+            <a href="http://guatecompras.gt/compradores/consultaDetEnt.aspx?iEnt={{ entidad.id }}&iUnt=0&iTipo=4" target="_blank">Ver entidad en GuateCompras</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            NIT: {{ entidad.nit }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            {{ entidad.entity_type.name }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            {{ entidad.department }}, {{ entidad.city }}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block date_picker %}
+    <div class="input-daterange input-group" id="datepicker">
+        <input type="text" class="input-sm form-control" name="start" value="{{start_date}}" autocomplete="off" />
+        <span class="input-group-addon">a</span>
+        <input type="text" class="input-sm form-control" name="end" value="{{end_date}}" autocomplete="off" />
+    </div>
+    <span class="input-group">
+        <button id="btnActualizar" class="btn btn-default" type="button">Actualizar</button>
+    </span>    
+{% endblock %}
+
+
+{% block visualization %}
+    <h3>Proveedores</h3>
+    <div class="row">
+        <button id="btnAdjudicados" class="btn btn-success" type="button">NOGs adjudicados</button>
+        <button id="btnParticiparon" class="btn btn-info" type="button">NOGs con propuesta</button>
+    </div>
+    <div id="vProve" class="visualization">
+    </div>
+    <h3>Gastos por Categoría</h3>
+    <div id="vCat" class="visualization">
+    </div>
+    <h3>Gastos por Modalidad</h3>
+    <div id="vMod" class="visualization">
+    </div>
+    <h3>Gastos por dia</h3>
+    <div id="vGastosDia" class="visualization">
+    </div>
+{% endblock %}
+
+{% block visualization_code %}
+    <script>
+        //datepicker
+        jQuery('.input-daterange').datepicker({
+            language: "es",
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+        //refreshButton
+        jQuery('#btnActualizar').on('click', function(event){
+            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbd.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/prove", gbe.draw);
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/cat", gbc.draw);
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/mod", gbm.draw);
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/day", gbd.draw);
+        });
+        //bubbles
+        jQuery(document).ready(function() {
+            gbe = Object.create(Bubble);
+            varRadius = 't_ammount';
+            coloringVar = ['t_awarded','t_proposed'];
+            coloringTipLabels = ['Cantidad de NOGs adjudicados: ', 'Cantidad de NOGs en los que hicieron propuesta: '];
+            gbe.setup("#vProve",0,0,"{{start_date}}","{{end_date}}",varRadius,coloringVar, coloringTipLabels,"proveedor");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/prove", gbe.draw);
+        });
+
+        jQuery('#btnAdjudicados').on('click', function(event){
+            gbe.refreshColor(0);
+        });
+
+        jQuery('#btnParticiparon').on('click', function(event){
+            gbe.refreshColor(1);
+        });
+        //sunburst
+        jQuery(document).ready(function() {
+            gbc= Object.create(Sunburst);
+            gbc.setup("#vCat",0,0,"{{start_date}}","{{end_date}}","category","unit","t_ammount");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/cat", gbc.draw);
+        });
+        //ComposedBar
+        jQuery(document).ready(function() {
+            gbm = Object.create(ComposedBar);
+            gbm.setup("#vMod",0,0,"{{start_date}}","{{end_date}}","h","proveedor");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/mod", gbm.draw);
+        });
+        //PunchCard
+        jQuery(document).ready(function() {
+            gbd = Object.create(PunchCard);
+            gbd.setup("#vGastosDia",15,"{{start_date}}","{{end_date}}","{% url 'visualizaciones:entidad_pagos_index'%}"+"{{ entidad.id }}"+"/");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/day", gbd.draw);
+        });
+    </script>
+{% endblock %}

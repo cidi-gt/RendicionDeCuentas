@@ -1,0 +1,44 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'GCEstadisticas/style.css' %}" />
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    function drawVisualization(summarizedData) {
+        var t_ammount = d3.sum(summarizedData, function(d) { return d.t_ammount});
+        
+        var xScale = d3.scaleLinear().domain(d3.extent(summarizedData, function(d) { return d['t_suppliers_awarded'];} )).range([0,500]);
+        var yScale = d3.scaleLinear().domain(d3.extent(summarizedData, function(d) { return d['t_nogs'];} )).range([0,350]);
+        var ammScale = d3.scaleLog().domain([4000,483295999.30]).range([0,5]);
+        var graphSpace = d3.select("#visualization");
+        var svgSelection = graphSpace.append("svg")
+                            //.attr("preserveAspectRatio", "xMinYMin meet")
+                            //.attr("viewBox", "0 0 120 120")
+                            //.classed("svg-content", true);
+                            .attr("width",1200)
+                            .attr("height",350);
+        var circleSelection = svgSelection.selectAll("circle")
+                                .data(summarizedData)
+                                .enter()
+                                .append("circle");
+        circleSelection
+            .attr("cx", function(d){ return xScale(d.t_suppliers_awarded); })
+            .attr("cy", function(d){ return yScale(d.t_nogs);     })
+            //.attr("r", 1)
+            /*.style("fill", function(d) {
+                return("#"+Math.ceil(ammScale(d.t_ammount)).toString(16));
+            })
+            style("fill-opacity", .2)*/
+            
+            .attr("r",function(d){ return ammScale(d.t_ammount); })
+            .style("stroke","1px solid red")
+            .style("fill",function(d){ 
+                if (d.t_suppliers_proposed == 0) { return "red"; }
+                if (d.t_suppliers_proposed > 0 && d.t_suppliers_proposed < 10) { return "yellow"; }
+                if (d.t_suppliers_proposed > 10) { return "green"; }
+            });
+    }
+    d3.json("{% url 'visualizaciones:categorias_index' %}abc", drawVisualization);
+</script>
+
+<div id="visualization">
+</div>

@@ -1,0 +1,52 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+
+{% block custom_scripts  %}
+    <script src="{% static 'GCEstadisticas/ComposedBar.js' %}"></script>
+{% endblock %}
+
+
+{% block title %}Gastos por modalidad{% endblock %}
+
+
+{% block date_picker %}
+    <div class="input-daterange input-group" id="datepicker">
+        <input type="text" class="input-sm form-control" name="start" value="{{start_date}}" autocomplete="off" />
+        <span class="input-group-addon">a</span>
+        <input type="text" class="input-sm form-control" name="end" value="{{end_date}}" autocomplete="off" />
+    </div>
+    <span class="input-group">
+        <button id="btnActualizar" class="btn btn-default" type="button">Actualizar</button>
+    </span>    
+{% endblock %}
+
+
+{% block visualization %}
+    <div id="visualization" class="visualization">
+    </div>
+{% endblock %}
+
+
+{% block visualization_code %}
+    <script>
+        jQuery('.input-daterange').datepicker({
+            language: "es",
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+
+        var gbm;
+
+        jQuery(document).ready(function() {
+            gbm = Object.create(ComposedBar);
+            gbm.setup("#visualization",0,0,"{{start_date}}","{{end_date}}","h","entidad");
+            d3.json("{% url 'visualizaciones:modalidad_index' %}{{start_date}}/{{end_date}}", gbm.draw);
+        });
+
+        jQuery('#btnActualizar').on('click', function(event){
+            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            d3.json("{% url 'visualizaciones:modalidad_index' %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val(), gbm.draw);
+        });
+    </script>
+{% endblock %}

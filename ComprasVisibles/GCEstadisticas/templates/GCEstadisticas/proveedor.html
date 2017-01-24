@@ -1,0 +1,114 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+
+{% block custom_scripts %}
+    <script src="{% static 'GCEstadisticas/Bubble.js' %}"></script>
+    <script src="{% static 'GCEstadisticas/Sunburst.js' %}"></script>
+    <script src="{% static 'GCEstadisticas/ComposedBar.js' %}"></script>
+    <script src="{% static 'GCEstadisticas/PunchCard.js' %}"></script>
+{% endblock %}
+
+{% block title %}{{ supplier.name }}{% endblock %}
+
+{% block info %}
+    <div class="row">
+        <div class="col-xs-12">
+            {% if supplier.lprv == None %}
+                Proveedores extranjeros no tienen pagina en GuateCompras
+            {% else %}
+                <a href="http://guatecompras.gt/proveedores/consultaDetProvee.aspx?rqp=8&lprv={{ supplier.lprv }}" target="_blank">Ver proveedor en GuateCompras</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            NIT: {{ supplier.nit }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block date_picker %}
+    <div class="input-daterange input-group" id="datepicker">
+        <input type="text" class="input-sm form-control" name="start" value="{{start_date}}" autocomplete="off" />
+        <span class="input-group-addon">a</span>
+        <input type="text" class="input-sm form-control" name="end" value="{{end_date}}" autocomplete="off" />
+    </div>
+    <span class="input-group">
+        <button id="btnActualizar" class="btn btn-default" type="button">Actualizar</button>
+    </span>    
+{% endblock %}
+
+
+{% block visualization %}
+    <h3>Entidades Compradoras</h3>
+    <div class="row">
+        <button id="btnAdjudicados" class="btn btn-success" type="button">NOGs adjudicados</button>
+    </div>
+    <div id="vProve" class="visualization">
+    </div>
+    <h3>Categoría de las compras</h3>
+    <div id="vCat" class="visualization">
+    </div>
+    <h3>Modalidad de las compras</h3>
+    <div id="vMod" class="visualization">
+    </div>
+    <h3>Adjudicaciones recibidas por dia</h3>
+    <div id="vGastosDia" class="visualization">
+    </div>
+{% endblock %}
+
+{% block visualization_code %}
+
+    <script>
+        //datepicker
+        jQuery('.input-daterange').datepicker({
+            language: "es",
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+        //refreshButton
+        jQuery('#btnActualizar').on('click', function(event){
+            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbd.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/entidad", gbe.draw);
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/cat", gbc.draw);
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/mod", gbm.draw);
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/day", gbd.draw);
+        });
+        //bubbles
+        jQuery(document).ready(function() {
+            gbe = Object.create(Bubble);
+            varRadius = 't_ammount';
+            coloringVar = ['qty_nogs'];
+            coloringTipLabels = ['Cantidad de NOGs adjudicados: '];
+            gbe.setup("#vProve",0,0,"{{start_date}}","{{end_date}}",varRadius,coloringVar, coloringTipLabels, "entidad");
+            d3.json("{% url 'visualizaciones:proveedor_entities' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbe.draw);
+        });
+
+        jQuery('#btnAdjudicados').on('click', function(event){
+            gbe.refreshColor(0);
+        });
+        //sunburst
+        jQuery(document).ready(function() {
+            gbc= Object.create(Sunburst);
+            gbc.setup("#vCat",0,0,"{{start_date}}","{{end_date}}","category","entity","t_ammount");
+            d3.json("{% url 'visualizaciones:proveedor_categories' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbc.draw);
+            
+        });
+        //ComposedBar
+        jQuery(document).ready(function() {
+            gbm = Object.create(ComposedBar);
+            gbm.setup("#vMod",0,0,"{{start_date}}","{{end_date}}","h","entidad");
+            d3.json("{% url 'visualizaciones:proveedor_modalities' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbm.draw);
+        });
+        //PunchCard
+        jQuery(document).ready(function() {
+            gbd = Object.create(PunchCard);
+            gbd.setup("#vGastosDia",15,"{{start_date}}","{{end_date}}","{% url 'visualizaciones:entidad_pagos_index'%}"+"proveedor/{{ supplier.id }}"+"/");
+            d3.json("{% url 'visualizaciones:proveedor_pagos_by_day' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbd.draw);
+        });
+    </script>
+{% endblock %}

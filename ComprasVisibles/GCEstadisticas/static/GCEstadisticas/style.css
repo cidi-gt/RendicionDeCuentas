@@ -1,0 +1,159 @@
+.visualization {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    /*padding-bottom: 100%;*/
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.visualization svg{
+    border:0.5px solid #C0C0C0;
+    background:#fff;
+}
+
+#pageHead {
+    background:#333333;
+}
+
+#logo, #logo a, #logo a:hover {
+    margin-left:10px;
+    font-family:'Oswald';
+    font-size:45px;
+    color:#fff;
+    text-decoration:none;
+}
+
+h1,h2,h3 {
+	font-family:'Anton';
+	color:#555555;
+}
+
+nav.navbar {
+    background:none;
+    border:none;
+    margin-bottom:0px;
+}
+
+@media (max-width: 767px) {
+    /*for collapsed menu*/
+    nav.pull-right {
+        float:none !important;
+    }
+    .nav li {
+        border-left:5px solid transparent;
+    }
+
+    .nav li:hover, .nav li.active {
+        border-left:5px solid #547899;
+    }
+}
+@media (min-width: 768px) {
+    /*non collapsed menu */
+    .nav li {
+        border-bottom:5px solid transparent;
+    }
+    .nav li:hover, .nav li.active {
+        border-bottom:5px solid #547899;
+        background:none;
+    }
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:focus, .navbar-default .navbar-nav > .active > a:hover {
+    background:transparent;
+    color:#fff;
+}
+
+nav.navbar #menu{
+    margin-top:15px;
+}
+
+.navbar-default .navbar-nav > li > a, .navbar-default .navbar-nav > li > a:hover{
+    color:#fff;
+}
+
+h2.itemTitle {
+    margin-bottom:0;
+}
+
+#itemInfo{
+    margin-top:0;
+    color: #B7B5B5;
+    font-size:0.9em;
+    margin-bottom:25px;
+}
+
+#contactForm h3{
+    color:#fff;
+}
+
+#contactForm input, #contactForm textarea, #contactForm select {
+    border-radius: 5px;
+    border-style:none;
+    background:#fff;
+    height:35px;
+    width:100%;
+    margin-top:10px;
+    padding-left:5px;
+}
+
+#contactForm textarea{
+    height: 125px;
+}
+
+#contactForm #sendButton{
+    height:25px;
+    width:100px;
+    background:#547899;
+    color:#fff;
+}
+
+body{
+    background:#333333;
+    min-height:100%;
+    font-family:'Hind';
+}
+
+#pageContent{
+    background:#F8F8F8;
+    width:100%;
+    margin:0 0;
+    height: auto;
+}
+
+#content{
+    padding-top:25px;
+    padding-bottom: 25px;
+}
+
+#pageFooter {
+    background:#333333;
+    min-height:200px;
+    margin-bottom:15px;
+}
+
+.svg-content {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+path {
+  stroke-width: 1px;
+  stroke: white;
+  cursor: pointer;
+}
+div#tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 10px;
+    font: 12px sans-serif;
+    background: #444444;
+    color:#fff;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+#tooltip h1, #tooltip h2, #tooltip h3 {
+    color:#fff;
+    font-family:'Hind';
+}

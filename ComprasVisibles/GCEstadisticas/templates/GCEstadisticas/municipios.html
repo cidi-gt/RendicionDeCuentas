@@ -1,0 +1,177 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+
+{% block custom_scripts  %}
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="{% static 'GCEstadisticas/Muni.js' %}"></script>
+    <!--bootstrap selector-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+{% endblock %}
+
+
+{% block title %}Gastos por Municipalidad{% endblock %}
+
+
+{% block date_picker %}
+    <div class="input-daterange input-group" id="datepicker">
+        <input type="text" class="input-sm form-control" name="start" value="{{start_date}}" autocomplete="off" />
+        <span class="input-group-addon">a</span>
+        <input type="text" class="input-sm form-control" name="end" value="{{end_date}}" autocomplete="off" />
+    </div>
+    <div class="input-group" id="divActualizar">
+        <button id="btnActualizar" class="btn btn-default" type="button">Actualizar</button>
+    </div>
+{% endblock %}
+
+
+{% block added_filters %}
+    <div id="entityFilters">
+        <select class="selectpicker" id="cmbDep" multiple data-actions-box="true"></select>
+        <select class="selectpicker" id="cmbMuni" multiple data-actions-box="true"></select>
+    </div>
+{% endblock %}
+
+
+{% block visualization %}
+    <div id="visualization" class="visualization">
+    </div>
+{% endblock %}
+
+
+{% block visualization_code %}
+    <script>
+        var selectedEntities = [];
+        jQuery('.input-daterange').datepicker({
+            language: "es",
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+
+        jQuery(document).ready(function() {
+            gbm = Object.create(Muni);
+            gbm.setup("#visualization",0,0,"{{start_date}}","{{end_date}}");
+            queue()
+                .defer(d3.json, "{% static 'GCEstadisticas/guatemala_municipios.topojson' %}")
+                .defer(d3.json, "{% url 'visualizaciones:municipio_index' %}{{start_date}}/{{end_date}}")
+                .await(gbm.draw);
+        });
+
+        jQuery('#btnActualizar').on('click', function(event){
+            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            d3.json("{% url 'visualizaciones:municipio_index' %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val(), gbm.redraw);
+        });
+        
+        {# functions for the selects #}
+        var cities = [];
+        jQuery(document).ready(function() {
+            {# get a json array of the cities #}
+            {% if cities_list %}
+                {% for key,value in cities_list.items %}
+                    {% if key != "" %}
+                        dep = {"dep":"{{ key }}", "cities":[]};
+                        {% for city in value %}
+                            city = {"name":"{{ city }}"}; dep['cities'].push(city);
+                        {% endfor %}
+                        cities.push(dep);
+                    {% endif %}
+                {% endfor %}
+                cities.sort(function(a, b) {
+                    return (a.dep<b.dep)?-1:1;
+                });                
+            {% endif %}
+            {# get a json array of the entities #}
+            {% if entity_list %}
+                entities = [];
+                {% for key,value in entity_list.items %}
+                    etype = {"type":"{{ key }}",  "entities":[] };
+                    {% for ent in value %}
+                        entity = {"e_id":"{{ ent.id }}", "name":"{{ ent.name }}", "department":"{{ ent.department }}", "city":"{{ ent.city }}"}; etype["entities"].push(entity);
+                    {% endfor %}
+                    entities.push(etype);
+                {% endfor %}
+                entities.sort(function(a, b) {
+                    return (a.type<b.type)?-1:1;
+                });
+            {% endif %}
+            //using the json arrays, form the dependant selects
+            var option = '';
+            //forming cmbDep y cmbMuni
+            for (var i=0; i<cities.length; i++){
+                option += '<option value="'+cities[i]['dep']+'" selected="selected">'+cities[i]['dep']+'</option>';
+            }
+            jQuery("#cmbDep").append(option);
+            fillMuni();
+        });
+        //this function fills #cmbMuni with the municiples of the selected departments
+        function fillMuni(){
+            option = '';
+            for (var i=0; i<cities.length; i++){
+                if (jQuery.inArray(cities[i]['dep'], jQuery("#cmbDep").val())!=-1){
+                    option += '<optgroup label="'+cities[i]['dep']+'">';
+                    for (var j=0; j<cities[i]['cities'].length; j++) {
+                        option += '<option value="'+cities[i]['dep']+"-"+cities[i]['cities'][j]['name']+'" selected="selected">'+cities[i]['cities'][j]['name']+'</option>';
+                    }
+                    option += '</optgroup>';
+                }
+            }
+            jQuery("#cmbMuni").empty();
+            jQuery("#cmbMuni").append(option);
+            jQuery('#cmbMuni').selectpicker('refresh');
+            fillETypes();
+        }
+        //chain changes on cmbDep to cmbMuni
+        jQuery("#cmbDep").on('hidden.bs.select', function(event) {
+            fillMuni();
+            refreshMap();
+        });
+        //chain changes on cmbMuni to .cmbEType
+        jQuery("#cmbMuni").on('hidden.bs.select', function(event) {
+            fillETypes();
+            refreshMap();
+        });
+        //this functions refresh the map with the entities selected
+        function refreshMap(){
+            selectedEntities = [];
+            for (var i=0; i<entities.length; i++){
+                if ((jQuery("#cmbEType"+i).val() != null) & (jQuery("#cmbEType"+i).val() != undefined))
+                    selectedEntities = selectedEntities.concat(jQuery("#cmbEType"+i).val());
+            }
+            gbm.updatePaint();
+        }
+        //this function fill all .cmbEType based on the selected municiples
+        function fillETypes() {
+            for (var i=0; i<entities.length; i++){
+                option = '';
+                for (var j=0; j<entities[i]['entities'].length; j++) {
+                    //if the entity is located in a city that is selected, then show
+                    if (jQuery.inArray(entities[i]['entities'][j]['department']+'-'+entities[i]['entities'][j]['city'], jQuery("#cmbMuni").val())!=-1) {
+                        //by default it will select municipalities of the selected cities
+                        selected = ((entities[i]['entities'][j]['name'].toLowerCase()).indexOf("municipalidad ") >= 0)?' selected="selected" ':'';
+                        option += '<option value="'+entities[i]['entities'][j]['e_id']+'" '+selected+'>'+entities[i]['entities'][j]['name']+'</option>';
+                    }
+                }
+                if (option == ''){
+                    option = '<option disabled="disabled">Ninguna entidad de este tipo esta registrada para los municipios selecctionados</option>';
+                }
+                option = '<optgroup label="'+entities[i]['type']+'">' + option + '</optgroup>';
+                //if the select exists then use it, else, add it
+                if (jQuery("#cmbEType"+i).length) {
+                    jQuery("#cmbEType"+i).empty();
+                    jQuery("#cmbEType"+i).append(option);
+                    jQuery("#cmbEType"+i).selectpicker('refresh');
+                }
+                else {
+                    option = '<select class="selectpicker cmbEtype" id="cmbEType'+i+'" multiple data-actions-box="true">' + option + '</select> ';
+                    jQuery("#entityFilters").append(option);
+                    jQuery("#cmbEType"+i).on('hidden.bs.select', function(event) {
+                        refreshMap();
+                    });
+                }
+            }
+            refreshMap();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+{% block visualiation_libraries %}{% endblock %}
+{% block date_picker_libraries %}{% endblock %}
+
+
+{% block title %}Visualizaciones{% endblock %}
+
+
+{% block visualization %}
+    {% if opciones %}
+        <ul>
+        {% for key,value in opciones %}
+            <li><a href="{% url value   %}">{{ key }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay opciones disponibles</p>
+    {% endif %}
+{% endblock %}
+
+

@@ -1,0 +1,52 @@
+{% extends 'GCEstadisticas/base.html' %}
+{% load static %}
+
+
+{% block custom_scripts  %}
+    <script src="{% static 'GCEstadisticas/Sunburst.js' %}"></script>
+{% endblock %}
+
+
+{% block title %}Gastos por Categoría{% endblock %}
+
+
+{% block date_picker %}
+    <div class="input-daterange input-group" id="datepicker">
+        <input type="text" class="input-sm form-control" name="start" value="{{start_date}}" autocomplete="off" />
+        <span class="input-group-addon">a</span>
+        <input type="text" class="input-sm form-control" name="end" value="{{end_date}}" autocomplete="off" />
+    </div>
+    <span class="input-group">
+        <button id="btnActualizar" class="btn btn-default" type="button">Actualizar</button>
+    </span>    
+{% endblock %}
+
+
+{% block visualization %}
+    <div id="visualization" class="visualization">
+    </div>
+{% endblock %}
+
+{% block visualization_code %}
+    <script>
+        jQuery('.input-daterange').datepicker({
+            language: "es",
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+
+        var gbc;
+        
+        jQuery(document).ready(function() {
+            gbc= Object.create(Sunburst);
+            gbc.setup("#visualization",0,0,"{{start_date}}","{{end_date}}","category","entity","t_ammount", "entidad");
+            d3.json("{% url 'visualizaciones:categoria_index' %}{{start_date}}/{{end_date}}", gbc.draw);
+        });
+
+        jQuery('#btnActualizar').on('click', function(event){
+            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            d3.json("{% url 'visualizaciones:categoria_index' %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val(), gbc.draw);
+        });
+
+    </script>
+{% endblock %}
