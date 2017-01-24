@@ -1,0 +1,8 @@
+*.pyc
+*.pyo
+*~
+venv/
+ComprasSpider/ComprasSpider/crawls
+ComprasSpider/ComprasSpider/schedulers
+ComprasSpider/ComprasSpider/cancelled_nogs.txt
+
