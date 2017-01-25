@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from .settings_secret import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,11 +20,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '5r8ml!6g4s@tq^+1=5()l6+x3lq(mp0(_g5t3q8u27z*63q6rg'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['comprasvisibles.org']
 
@@ -75,21 +71,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ComprasVisibles.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'j53_compras_visibles',
-        'USER': 'j53_user_cv',
-        'PASSWORD': 'dfe$77UUp$_a',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
 
 
 # Password validation

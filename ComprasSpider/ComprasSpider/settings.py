@@ -62,7 +62,10 @@ COOKIES_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddleware.useragent.UserAgentMiddleware': None,
     'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 100,
+    #using tor
     'scrapy_fake_useragent.middleware.ProxyMiddleware':300,
+    #without using tor
+    #'scrapy_fake_useragent.middleware.ProxyMiddleware':None,
 }
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
