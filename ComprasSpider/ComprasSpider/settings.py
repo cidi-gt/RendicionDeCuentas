@@ -105,7 +105,7 @@ LOG_ENABLED = True
 LOG_LEVEL = 'DEBUG'
 
 # Add absolute path of your Django application root directory
-sys.path.append('/home/javiercito53/public_html/ComprasVisibles/ComprasVisibles/')
+sys.path.append(os.path.join(sys.path[0],'..','..','ComprasVisibles'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ComprasVisibles.settings'
 import django
 django.setup()
