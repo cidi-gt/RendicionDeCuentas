@@ -48,6 +48,10 @@ Bubble.setup = function(mainDiv, width, height, startDate, endDate, varRadius, c
         self.spinVar.stop();
         self.svg.selectAll("*").remove();
 
+        var bubble = d3.layout.pack()
+                .sort(null)
+                .size([self.width, self.height])
+                .padding(1.5);
 
         summarizedData.forEach(function(d){
             currRadius = isNaN(parseFloat(d[varRadius]))?0:parseFloat(d[varRadius]);
@@ -57,9 +61,12 @@ Bubble.setup = function(mainDiv, width, height, startDate, endDate, varRadius, c
             });
             if (currRadius > 0) {
                 node = {}
+                node['packageName'] = "main";
+                node['className'] = d['name'];
+                node['value'] = currRadius;
                 node['name'] = d['name'];
                 node['id'] = d['id'];
-                node['t_radius'] = currRadius
+                node['t_radius'] = currRadius;
                 self.coloringVar.forEach(function(element, index){
                     node[element] = currColorings[index];
                 });
@@ -76,6 +83,19 @@ Bubble.setup = function(mainDiv, width, height, startDate, endDate, varRadius, c
                 });
             }
         });
+
+        nodes.sort(function(x, y){
+           return d3.descending(x.value, y.value);
+        });
+        
+        var svgNode = self.svg.selectAll(".node")
+                .data(bubble.nodes({children: [{children: nodes}]})
+                .filter(function(d) { return !d.children; }))
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+
         //to enhance visualization, if minRadius is greater than 1% of maxRadius then use 1% of max, as minradius
         if (minRadius > maxRadius*0.01)
             minRadius = maxRadius*0.01;
@@ -85,97 +105,52 @@ Bubble.setup = function(mainDiv, width, height, startDate, endDate, varRadius, c
             coloringScale.push(d3.scale.linear().domain([minColors[index],maxColors[index]]).range([0,100]));
         });
 
-        var force = d3.layout.force()
-            .gravity(0.05)
-            .charge(function(d, i) { return i ? -0.1 : -0.1; })
-            .nodes(nodes)
-            .size([self.width, self.height]);
-
-        force.start()
-
-        force.on("tick", function(e) {
-        
-          var q = d3.geom.quadtree(nodes),
-              i = 0,
-              n = nodes.length;
-
-          while (++i < n) q.visit(self.collide(nodes[i]));
-
-          self.mainDiv.selectAll("circle")
-              .attr("cx", function(d) { return d.x; })
-              .attr("cy", function(d) { return d.y; });
-        });
-
         //setup tooltip
-        //jQuery("#tooltip").remove();
         if (self.tooltip)
             jQuery(self.tooltip[0][0]).remove();
         self.tooltip = self.mainDiv.append("div")
             .attr("id","tooltip");
-        var entityNodes = self.svg.selectAll("circle")
-                            .data(nodes)
-                            .enter().append("circle")
-                            .attr("r", function(d){ d.r = radiusScale(d.t_radius);  return radiusScale(d.t_radius); })
-                            .style("stroke","#000")
-                            .style("stroke-width","0.3")
-                            .on('mouseover', function(d) {
-                                d3.select(this).style("stroke-width","0.9");
-                                self.tooltip.transition()
-                                    .duration(200)
-                                    .style("opacity", 1);
-                                coloringTip = "";
-                                self.coloringVar.forEach(function(element, index){
-                                    coloringTip += self.coloringTipLabels[index]+d[element]+"</br>";
-                                });
-                                self.tooltip.html("<h6>"+d.name+"</h6>"+
-                                            "Gastado: Q "+parseFloat(d.t_radius).formatMoney(2)+"</br>"+
-                                            coloringTip
-                                            )
-                                    .style("left", ((d3.mouse(this)[0]*scaleVar+translateVar[0])) +"px")
-                                    .style("top", ((d3.mouse(this)[1]*scaleVar+translateVar[1])) +"px");
-                            })
-                            .on('mouseout', function(d) {
-                                d3.select(this).style("stroke-width","0.5");
-                                self.tooltip.transition()
-                                    .duration(500)
-                                    .style("opacity",0);
-                            })
-                            .on('click', function(d){
-                                if (self.linkType == "entidad"){
-                                    window.open('/visualizaciones/entidad/'+d.id+"/"+self.startDate+"/"+self.endDate, '_blank');
-                                }
-                                if (self.linkType == "proveedor") {
-                                    window.open('/visualizaciones/proveedor/'+d.id+"/"+self.startDate+"/"+self.endDate, '_blank');
-                                }
-                            });
+
+        svgNode.append("circle")
+                .attr("r", function(d){ d.r = radiusScale(d.t_radius);  return radiusScale(d.t_radius); })
+                .style("stroke","#000")
+                .style("stroke-width","0.3")
+                .on('mouseover', function(d) {
+                    d3.select(this).style("stroke-width","0.9");
+                    self.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 1);
+                    coloringTip = "";
+                    self.coloringVar.forEach(function(element, index){
+                        coloringTip += self.coloringTipLabels[index]+d[element]+"</br>";
+                    });
+                    self.tooltip.html("<h6>"+d.name+"</h6>"+
+                                "Gastado: Q "+parseFloat(d.t_radius).formatMoney(2)+"</br>"+
+                                coloringTip
+                                )
+                        .style("left", ((d3.mouse(this)[0]*scaleVar+translateVar[0]+(scaleVar*d.x))) +"px")
+                        .style("top", ((d3.mouse(this)[1]*scaleVar+translateVar[1]+(scaleVar*d.y))) +"px");
+                        
+                })
+                .on('mouseout', function(d) {
+                    d3.select(this).style("stroke-width","0.5");
+                    self.tooltip.transition()
+                        .duration(500)
+                        .style("opacity",0);
+                })
+                .on('click', function(d){
+                    if (self.linkType == "entidad"){
+                        window.open('/visualizaciones/entidad/'+d.id+"/"+self.startDate+"/"+self.endDate, '_blank');
+                    }
+                    if (self.linkType == "proveedor") {
+                        window.open('/visualizaciones/proveedor/'+d.id+"/"+self.startDate+"/"+self.endDate, '_blank');
+                    }
+                });
 
         self.refreshColor(0);
         self.finishRender();
     }
 
-    self.collide = function(node){
-      var r = node.r + 16,
-          nx1 = node.x - r,
-          nx2 = node.x + r,
-          ny1 = node.y - r,
-          ny2 = node.y + r;
-      return function(quad, x1, y1, x2, y2) {
-        if (quad.point && (quad.point !== node)) {
-          var x = node.x - quad.point.x,
-              y = node.y - quad.point.y,
-              l = Math.sqrt(x * x + y * y),
-              r = node.r + quad.point.r;
-          if (l < r) {
-            l = (l - r) / l * .5;
-            node.x -= x *= l;
-            node.y -= y *= l;
-            quad.point.x += x;
-            quad.point.y += y;
-          }
-        }
-        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-      };
-    }
     
     self.refreshColor = function(visVar) {
         var squareSelection = gbe.svg.selectAll("circle")

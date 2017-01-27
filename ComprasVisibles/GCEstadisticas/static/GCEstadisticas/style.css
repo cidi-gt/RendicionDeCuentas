@@ -147,7 +147,7 @@ div#tooltip {
     text-align: center;
     padding: 10px;
     font: 12px sans-serif;
-    background: #444444;
+    background: rgba(68,68,68,0.85);
     color:#fff;
     border: 0px;
     border-radius: 8px;
