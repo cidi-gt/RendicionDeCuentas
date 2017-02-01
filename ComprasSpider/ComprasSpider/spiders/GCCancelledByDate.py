@@ -12,6 +12,7 @@ from urllib.parse import urlparse, parse_qs
 from GCEstadisticas.models import Requisition, Proposal, Awarded
 from datetime import datetime
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 from babel.dates import format_date
 import pytz
 from scrapy.spidermiddlewares.httperror import HttpError
@@ -58,6 +59,11 @@ class GCCancelledByDate(scrapy.Spider):
     }
 
     def __init__(self, fecha_ini='', fecha_fin=''):
+        if (fecha_ini.strip() == '') and (fecha_fin.strip() == ''):
+            tz = pytz.timezone('America/Guatemala')
+            yesterday = timezone.localtime(timezone.now()).replace(tzinfo=pytz.timezone('America/Guatemala')) + relativedelta(days=-1)
+            fecha_ini = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
+            fecha_fin = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
         self.formdata['MasterGC$ContentBlockHolder$txtFechaIni'] = fecha_ini
         self.formdata['MasterGC$ContentBlockHolder$txtFechaFin'] = fecha_fin
         self.start_date = fecha_ini

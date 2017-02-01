@@ -1,28 +1,22 @@
-# This package will contain the spiders of your Scrapy project
-#
-# Please refer to the documentation for information on how to create and manage
-# your spiders.
-
-
 import scrapy
 import logging
 import re
 import pytz
 from scrapy.http import FormRequest
 from decimal import Decimal
-from GCEstadisticas.models import Requisition, Awarded
 from datetime import datetime
 from django.db.models import Count,Sum
+from django.utils import timezone
+from GCEstadisticas.models import Requisition, Awarded
 from dateutil.relativedelta import relativedelta
 from babel.dates import format_date, format_datetime, format_time
 from scrapy import signals
 from scrapy import Spider
 
 
-
 #to call:  
 #$lname="BORRAR";sdate="01.febrero.2016";edate="29.febrero.2016";filename="checker";postfix="_check";scrapy crawl GCDataCheck -a fecha_ini=$sdate -a fecha_fin=$edate -a filename=$lname -a postfix=$postfix  --logfile=crawls/logs/$lname.txt -s JOBDIR=crawls
-
+#scrapy crawl GCDataCheck -s JOBDIR=crawls  #this will check form 20080101 to yesterday, will create a logfile named Check20080101_xxxxxxxx
 
 class GCDataCheck(scrapy.Spider):
     name = 'GCDataCheck'
@@ -60,19 +54,27 @@ class GCDataCheck(scrapy.Spider):
         'MasterGC$ContentBlockHolder$btnBuscar.y':'0',
         'MasterGC$ContentBlockHolder$btnBuscar':''
     }
-
+    
     def __init__(self, fecha_ini='', fecha_fin='', filename='checker', postfix='_check'):
+        if (fecha_ini.strip() == '') and (fecha_fin.strip() == ''):
+            fecha_ini = '01.enero.2008'
+            tz = pytz.timezone('America/Guatemala')
+            yesterday = timezone.localtime(timezone.now()).replace(tzinfo=pytz.timezone('America/Guatemala')) + relativedelta(days=-1)
+            fecha_fin = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
+            postfix='_check'+format_date(yesterday,"YYYYMMdd", locale='es_GT')
+        else:
+            self.fecha_ini = fecha_ini
+            self.fecha_fin = fecha_fin
+            self.filename = filename
+            self.postfix = postfix
         self.formdata['MasterGC$ContentBlockHolder$txtFechaIni'] = fecha_ini
         self.formdata['MasterGC$ContentBlockHolder$txtFechaFin'] = fecha_fin
-        self.fecha_ini = fecha_ini
-        self.fecha_fin = fecha_fin
-        self.filename = filename
-        self.postfix = postfix
         print("Checking integrity for %r to %r"%(fecha_ini, fecha_fin))
         self.logger.info('[ComprasVisibles] Checking integrity for %r to %r'%(fecha_ini, fecha_fin))
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
+        #at the end of the crawling, write to the log, the difference in the day.
         spider = super(GCDataCheck, cls).from_crawler(crawler, *args, **kwargs)
         crawler.signals.connect(spider.write_differences, signal=signals.spider_closed)
         return spider
@@ -244,5 +246,4 @@ class GCDataCheck(scrapy.Spider):
                     dont_filter=True
                 )
                 yield next_page_request
-                
                 

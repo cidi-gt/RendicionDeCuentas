@@ -32,7 +32,7 @@ def date_converter(year_start=None,month_start=None, day_start=None):
     tz = pytz.timezone('America/Guatemala')
     if (year_start is None):
         try:
-            curr_date = timezone.now() + relativedelta(days=-1)
+            curr_date = timezone.localtime(timezone.now()).replace(tzinfo=pytz.timezone('America/Guatemala')) + relativedelta(days=-1)
             result_date = date_converter(curr_date.year, curr_date.month, curr_date.day)
             return result_date
         except Exception as e:

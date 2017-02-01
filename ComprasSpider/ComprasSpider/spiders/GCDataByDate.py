@@ -1,8 +1,3 @@
-# This package will contain the spiders of your Scrapy project
-#
-# Please refer to the documentation for information on how to create and manage
-# your spiders.
-
 #exec op1: $scrapy crawl GCDataByDate -a fecha_ini=13.junio.2016 -a fecha_fin=13.junio.2016
 #exec op2: $pdate="03.agosto.2016"; scrapy crawl GCDataByDate -a fecha_ini=$pdate -a fecha_fin=$pdate --logfile=$pdate.txt
 #exec op3: $lname="201608-01-07";sdate="01.agosto.2016";edate="07.agosto.2016";scrapy crawl GCDataByDate -a fecha_ini=$sdate -a fecha_fin=$edate --logfile=crawls/logs/$lname.txt -s JOBDIR=crawls
@@ -18,7 +13,10 @@ from decimal import Decimal
 from urllib.parse import urlparse, parse_qs
 from GCEstadisticas.models import Entity, EntityType, PurchaseCategory, Requisition, Supplier, Proposal, Awarded
 from datetime import datetime
+from django.utils import timezone
+from babel.dates import format_date
 import pytz
+from dateutil.relativedelta import relativedelta
 from scrapy.spidermiddlewares.httperror import HttpError
 
 
@@ -78,6 +76,11 @@ class GCDataByDate(scrapy.Spider):
 
 
     def __init__(self, fecha_ini='', fecha_fin='', skip='0', nogs='', entities=''):
+        if (fecha_ini.strip() == '') and (fecha_fin.strip() == ''):
+            tz = pytz.timezone('America/Guatemala')
+            yesterday = timezone.localtime(timezone.now()).replace(tzinfo=pytz.timezone('America/Guatemala')) + relativedelta(days=-1)
+            fecha_ini = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
+            fecha_fin = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
         self.formdata['MasterGC$ContentBlockHolder$txtFechaIni'] = fecha_ini
         self.formdata['MasterGC$ContentBlockHolder$txtFechaFin'] = fecha_fin
         self.start_date = fecha_ini

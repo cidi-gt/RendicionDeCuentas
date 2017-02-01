@@ -3,6 +3,7 @@
 *~
 venv/
 ComprasSpider/ComprasSpider/crawls
+ComprasSpider/ComprasSpider/log.txt
 ComprasSpider/ComprasSpider/schedulers
 ComprasSpider/ComprasSpider/cancelled_nogs.txt
 ComprasVisibles/ComprasVisibles/settings_secret.py
