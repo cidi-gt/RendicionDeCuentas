@@ -65,8 +65,8 @@ class GCDataCheck(scrapy.Spider):
         else:
             self.fecha_ini = fecha_ini
             self.fecha_fin = fecha_fin
-            self.postfix = postfix
         self.filename = filename
+        self.postfix = postfix
         self.formdata['MasterGC$ContentBlockHolder$txtFechaIni'] = fecha_ini
         self.formdata['MasterGC$ContentBlockHolder$txtFechaFin'] = fecha_fin
         print("Checking integrity for %r to %r"%(fecha_ini, fecha_fin))

@@ -76,7 +76,7 @@ class GCDataByDate(scrapy.Spider):
 
 
     def __init__(self, fecha_ini='', fecha_fin='', skip='0', nogs='', entities=''):
-        if (fecha_ini.strip() == '') and (fecha_fin.strip() == ''):
+        if (fecha_ini.strip() == '') and (fecha_fin.strip() == '') and (nogs.strip() == '') and (entities.strip() == ''):
             tz = pytz.timezone('America/Guatemala')
             yesterday = timezone.localtime(timezone.now()).replace(tzinfo=pytz.timezone('America/Guatemala')) + relativedelta(days=-1)
             fecha_ini = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
