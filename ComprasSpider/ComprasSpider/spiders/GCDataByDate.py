@@ -217,7 +217,7 @@ class GCDataByDate(scrapy.Spider):
         info_items = response.xpath('//div[@id="MasterGC_ContentBlockHolder_upNog"]/table/tr/td/table[@class="TablaForm2"]/tr/td[@class="TablaForm3"]/table[@class="TablaForm3"]/tr')
         if not info_items:
             self.logger.error('[ComprasVisibles] ERROR: no se encontro informacion del NOG en la pagina %r'%response.url)
-            print(response)
+            print(response.body)
         for nogInfo in info_items:
             rowItem = nogInfo.xpath('td[1]/text() | td[1]/span/text()').extract()
             if rowItem:
