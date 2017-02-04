@@ -119,7 +119,7 @@ PunchCard.setup = function(mainDiv, squareEdge, strStartDate, strEndDate, linkTy
                                     if((extractedValues[d] == null) | (extractedValues[d] == undefined)) {
                                         return "white";
                                     }
-                                    return  gradientColor('#F9EBE5','#662506',ammountScale(extractedValues[d]));
+                                    return  gradientColor('#EDF9EA','#155E00',ammountScale(extractedValues[d]));
                                 })
                                 .on('mouseover', function(d,i) {
                                     self.tooltip.transition()

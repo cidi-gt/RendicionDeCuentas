@@ -13,26 +13,48 @@
 }
 
 #pageHead {
-    background:#333333;
+    background:#007271;
 }
 
 #logo, #logo a, #logo a:hover {
-    margin-left:10px;
-    font-family:'Oswald';
+    font-family:'Raleway';
     font-size:45px;
     color:#fff;
     text-decoration:none;
+    background:#fff;
+}
+
+div.logo {
+    background:#fff;
 }
 
 h1,h2,h3 {
-	font-family:'Anton';
-	color:#555555;
+	font-family:'Raleway';
+	color:#001212;
+}
+
+a {
+    color:#515151;
+}
+
+a:hover {
+    color:#000;
+    text-decoration:none;
 }
 
 nav.navbar {
     background:none;
     border:none;
     margin-bottom:0px;
+}
+
+.nav li a {
+    font-family:'Droid Sans';
+    font-size:17px;
+}
+
+.nav li::before{
+    content:"";
 }
 
 @media (max-width: 767px) {
@@ -45,16 +67,16 @@ nav.navbar {
     }
 
     .nav li:hover, .nav li.active {
-        border-left:5px solid #547899;
+        border-left:5px solid #BE5600;
     }
 }
 @media (min-width: 768px) {
     /*non collapsed menu */
     .nav li {
-        border-bottom:5px solid transparent;
+        border-bottom:7px solid transparent;
     }
     .nav li:hover, .nav li.active {
-        border-bottom:5px solid #547899;
+        border-bottom:7px solid #BE5600;
         background:none;
     }
 }
@@ -83,7 +105,7 @@ h2.itemTitle {
 }
 
 #contactForm h3{
-    color:#fff;
+    color:#80B280;
 }
 
 #contactForm input, #contactForm textarea, #contactForm select {
@@ -103,14 +125,30 @@ h2.itemTitle {
 #contactForm #sendButton{
     height:25px;
     width:100px;
-    background:#547899;
+    background:#BE5600;
     color:#fff;
 }
 
+li {
+    display:block;
+}
+
+li::before {
+    content: "\e018";
+    font-family: 'Glyphicons Halflings';
+    font-size: 12px;
+    float: left;
+    margin-top: 4px;
+    margin-left: -17px;
+    color: #333333;
+}
+
 body{
-    background:#333333;
+    /*background:#333333;*/
+    background:#007271;
     min-height:100%;
-    font-family:'Hind';
+    font-family:'Quicksand';
+    font-size:17px;
 }
 
 #pageContent{
@@ -126,7 +164,7 @@ body{
 }
 
 #pageFooter {
-    background:#333333;
+    background:#007271;
     min-height:200px;
     margin-bottom:15px;
 }

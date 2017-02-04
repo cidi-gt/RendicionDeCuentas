@@ -14,7 +14,7 @@
             <script src="http://spin.js.org/spin.min.js"></script>
         {% endblock %}
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-        <link href="https://fonts.googleapis.com/css?family=Oswald|Hind|Anton" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css?family=Quicksand|Droid+Sans|Raleway" rel="stylesheet"> 
         {% block date_picker_libraries %}
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.css" />
             <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
@@ -51,8 +51,8 @@
     <body>
 		<div class="container-fluid" id="pageHead">
 			<div class="row">
-				<div class="col-xs-12 col-md-4 col-lg-2">
-				    <span id="logo"><a href="{% url 'visualizaciones:index' %}">LOGOTIPO</a></span>
+				<div class="col-xs-12 col-md-4 col-lg-2 logo">
+				    <span id="logo"><a href="{% url 'visualizaciones:index' %}"><img alt="CIDI" src="{% static 'GCEstadisticas/cidi.jpg' %}" /></a></span>
 				</div>
 				<div class="col-xs-12 col-md-8 col-lg-10">
                     <nav class="navbar navbar-default pull-right">

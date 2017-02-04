@@ -70,7 +70,7 @@ Muni.setup = function(mainDiv, width, height, startDate, endDate) {
                 if((expenseById[d.properties.DEPARTAMEN+'-'+d.properties.MUNICIPIO] == null) | (expenseById[d.properties.DEPARTAMEN+'-'+d.properties.MUNICIPIO] == undefined)) {
                     return "white";
                 }
-                return gradientColor('#FFF6E8','#662506',ammountScale(expenseById[d.properties.DEPARTAMEN+'-'+d.properties.MUNICIPIO]));
+                return gradientColor('#EDF9EA','#155E00',ammountScale(expenseById[d.properties.DEPARTAMEN+'-'+d.properties.MUNICIPIO]));
             })
             .style('stroke','black')
             .style('stroke-width','0.3px')
