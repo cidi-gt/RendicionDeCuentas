@@ -78,7 +78,7 @@ Muni.setup = function(mainDiv, width, height, startDate, endDate) {
                 self.tooltip.transition()
                     .duration(200)
                     .style("opacity", 1);
-                self.tooltip.html(  "Nombre del municipio en GC: "+d.properties.MUNICIPIO+"</br>"+
+                self.tooltip.html(  "<h3>"+d.properties.MUNICIPIO+"</h3>"+
                                     "Nombre del municipio (mapa SEGEPLAN): "+d.properties.MUNI_ORIG+"</br>"+
                                     "Departamento: "+d.properties.DEPARTAMEN+"</br>"+
                                     "Q "+parseFloat(expenseById[d.properties.DEPARTAMEN+'-'+d.properties.MUNICIPIO]).formatMoney(2))

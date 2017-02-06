@@ -88,7 +88,7 @@ Sunburst.setup = function(mainDiv, width, height, startDate, endDate, firstLevel
                 self.tooltip.transition()
                     .duration(200)
                     .style("opacity", 1);
-                self.tooltip.html("<h6>"+d.name+"</h6>"+
+                self.tooltip.html("<h3>"+d.name+"</h3>"+
                             "Gastado: Q "+parseFloat(d.value).formatMoney(2)+"</br>"
                             )
                         .style("left", (d3.mouse(this)[0]+translateVar[0])+"px")

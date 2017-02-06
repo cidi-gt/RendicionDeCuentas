@@ -150,7 +150,7 @@ ComposedBar.setup = function(mainDiv, width, height, startDate, endDate, barType
                                     self.tooltip.transition()
                                         .duration(200)
                                         .style("opacity", 1);
-                                    self.tooltip.html("<h6>"+d.name+"</h6>"+
+                                    self.tooltip.html("<h3>"+d.name+"</h3>"+
                                                 "Gastado: Q "+parseFloat(d.t_ammount).formatMoney(2)+"</br>"+
                                                 "Total de todas las entidades para la modalidad: Q "+parseFloat(modalities[key]['t_ammount']).formatMoney(2)+"</br>"
                                                 )

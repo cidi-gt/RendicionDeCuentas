@@ -134,13 +134,13 @@ li {
 }
 
 li::before {
-    content: "\e018";
+    content: "\e015";
     font-family: 'Glyphicons Halflings';
-    font-size: 12px;
+    font-size: 15px;
     float: left;
     margin-top: 4px;
     margin-left: -17px;
-    color: #333333;
+    color: #2CA02C;
 }
 
 body{
@@ -184,8 +184,9 @@ div#tooltip {
     position: absolute;
     text-align: center;
     padding: 10px;
-    font: 12px sans-serif;
-    background: rgba(68,68,68,0.85);
+    font-size: 15px;
+    font-family:'Quicksand';
+    background: rgba(7,33,56,0.9);
     color:#fff;
     border: 0px;
     border-radius: 8px;
@@ -193,5 +194,6 @@ div#tooltip {
 }
 #tooltip h1, #tooltip h2, #tooltip h3 {
     color:#fff;
-    font-family:'Hind';
+    font-family:'Raleway';
+    font-size:18px;
 }

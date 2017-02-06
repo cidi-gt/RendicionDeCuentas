@@ -41,20 +41,20 @@
 
 
 {% block visualization %}
+    <h3>Adjudicaciones recibidas por dia</h3>
+    <div id="vGastosDia" class="visualization">
+    </div>
+    <h3>Modalidad de las compras</h3>
+    <div id="vMod" class="visualization">
+    </div>
+    <h3>Categoría de las compras</h3>
+    <div id="vCat" class="visualization">
+    </div>
     <h3>Entidades Compradoras</h3>
     <div class="row">
         <button id="btnAdjudicados" class="btn btn-success" type="button">NOGs adjudicados</button>
     </div>
     <div id="vProve" class="visualization">
-    </div>
-    <h3>Categoría de las compras</h3>
-    <div id="vCat" class="visualization">
-    </div>
-    <h3>Modalidad de las compras</h3>
-    <div id="vMod" class="visualization">
-    </div>
-    <h3>Adjudicaciones recibidas por dia</h3>
-    <div id="vGastosDia" class="visualization">
     </div>
 {% endblock %}
 
@@ -69,14 +69,33 @@
         });
         //refreshButton
         jQuery('#btnActualizar').on('click', function(event){
-            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
-            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
-            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
             gbd.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
-            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/entidad", gbe.draw);
-            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/cat", gbc.draw);
-            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/mod", gbm.draw);
+            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
             d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/day", gbd.draw);
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/mod", gbm.draw);
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/cat", gbc.draw);
+            d3.json("/visualizaciones/proveedor/"+{{ supplier.id }}+"/"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/entidad", gbe.draw);
+        });
+        //PunchCard
+        jQuery(document).ready(function() {
+            gbd = Object.create(PunchCard);
+            gbd.setup("#vGastosDia",15,"{{start_date}}","{{end_date}}","{% url 'visualizaciones:entidad_pagos_index'%}"+"proveedor/{{ supplier.id }}"+"/");
+            d3.json("{% url 'visualizaciones:proveedor_pagos_by_day' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbd.draw);
+        });
+        //ComposedBar
+        jQuery(document).ready(function() {
+            gbm = Object.create(ComposedBar);
+            gbm.setup("#vMod",0,0,"{{start_date}}","{{end_date}}","h","entidad");
+            d3.json("{% url 'visualizaciones:proveedor_modalities' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbm.draw);
+        });
+        //sunburst
+        jQuery(document).ready(function() {
+            gbc= Object.create(Sunburst);
+            gbc.setup("#vCat",0,0,"{{start_date}}","{{end_date}}","category","entity","t_ammount");
+            d3.json("{% url 'visualizaciones:proveedor_categories' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbc.draw);
+            
         });
         //bubbles
         jQuery(document).ready(function() {
@@ -87,28 +106,9 @@
             gbe.setup("#vProve",0,0,"{{start_date}}","{{end_date}}",varRadius,coloringVar, coloringTipLabels, "entidad");
             d3.json("{% url 'visualizaciones:proveedor_entities' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbe.draw);
         });
-
         jQuery('#btnAdjudicados').on('click', function(event){
             gbe.refreshColor(0);
         });
-        //sunburst
-        jQuery(document).ready(function() {
-            gbc= Object.create(Sunburst);
-            gbc.setup("#vCat",0,0,"{{start_date}}","{{end_date}}","category","entity","t_ammount");
-            d3.json("{% url 'visualizaciones:proveedor_categories' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbc.draw);
-            
-        });
-        //ComposedBar
-        jQuery(document).ready(function() {
-            gbm = Object.create(ComposedBar);
-            gbm.setup("#vMod",0,0,"{{start_date}}","{{end_date}}","h","entidad");
-            d3.json("{% url 'visualizaciones:proveedor_modalities' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbm.draw);
-        });
-        //PunchCard
-        jQuery(document).ready(function() {
-            gbd = Object.create(PunchCard);
-            gbd.setup("#vGastosDia",15,"{{start_date}}","{{end_date}}","{% url 'visualizaciones:entidad_pagos_index'%}"+"proveedor/{{ supplier.id }}"+"/");
-            d3.json("{% url 'visualizaciones:proveedor_pagos_by_day' supplier.id start_date|slice:'0:4' start_date|slice:'5:7' start_date|slice:'8:10' end_date|slice:'0:4' end_date|slice:'5:7' end_date|slice:'8:10' %}", gbd.draw);
-        });
+
     </script>
 {% endblock %}

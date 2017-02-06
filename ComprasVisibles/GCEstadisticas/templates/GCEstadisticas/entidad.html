@@ -49,21 +49,22 @@
 
 
 {% block visualization %}
+    <h3>Gastos por dia</h3>
+    <div id="vGastosDia" class="visualization">
+    </div>
+    <h3>Gastos por Modalidad</h3>
+    <div id="vMod" class="visualization">
+    </div>
+    <h3>Gastos por Categoría</h3>
+    <div id="vCat" class="visualization">
+    </div>
     <h3>Proveedores</h3>
     <div class="row">
         <button id="btnAdjudicados" class="btn btn-success" type="button">NOGs adjudicados</button>
     </div>
     <div id="vProve" class="visualization">
     </div>
-    <h3>Gastos por Categoría</h3>
-    <div id="vCat" class="visualization">
-    </div>
-    <h3>Gastos por Modalidad</h3>
-    <div id="vMod" class="visualization">
-    </div>
-    <h3>Gastos por dia</h3>
-    <div id="vGastosDia" class="visualization">
-    </div>
+
 {% endblock %}
 
 {% block visualization_code %}
@@ -76,14 +77,32 @@
         });
         //refreshButton
         jQuery('#btnActualizar').on('click', function(event){
-            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
-            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
-            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
             gbd.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
-            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/prove", gbe.draw);
-            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/cat", gbc.draw);
-            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/mod", gbm.draw);
+            gbm.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbc.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
+            gbe.changeDates(jQuery('input[name=start]').val(),jQuery('input[name=end]').val());
             d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/day", gbd.draw);
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/mod", gbm.draw);
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/cat", gbc.draw);
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}"+jQuery('input[name=start]').val()+"/"+jQuery('input[name=end]').val()+"/prove", gbe.draw);
+        });
+        //PunchCard
+        jQuery(document).ready(function() {
+            gbd = Object.create(PunchCard);
+            gbd.setup("#vGastosDia",15,"{{start_date}}","{{end_date}}","{% url 'visualizaciones:entidad_pagos_index'%}"+"{{ entidad.id }}"+"/");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/day", gbd.draw);
+        });
+        //ComposedBar
+        jQuery(document).ready(function() {
+            gbm = Object.create(ComposedBar);
+            gbm.setup("#vMod",0,0,"{{start_date}}","{{end_date}}","h","proveedor");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/mod", gbm.draw);
+        });
+        //sunburst
+        jQuery(document).ready(function() {
+            gbc= Object.create(Sunburst);
+            gbc.setup("#vCat",0,0,"{{start_date}}","{{end_date}}","category","unit","t_ammount");
+            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/cat", gbc.draw);
         });
         //bubbles
         jQuery(document).ready(function() {
@@ -101,24 +120,6 @@
 
         jQuery('#btnParticiparon').on('click', function(event){
             gbe.refreshColor(1);
-        });
-        //sunburst
-        jQuery(document).ready(function() {
-            gbc= Object.create(Sunburst);
-            gbc.setup("#vCat",0,0,"{{start_date}}","{{end_date}}","category","unit","t_ammount");
-            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/cat", gbc.draw);
-        });
-        //ComposedBar
-        jQuery(document).ready(function() {
-            gbm = Object.create(ComposedBar);
-            gbm.setup("#vMod",0,0,"{{start_date}}","{{end_date}}","h","proveedor");
-            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/mod", gbm.draw);
-        });
-        //PunchCard
-        jQuery(document).ready(function() {
-            gbd = Object.create(PunchCard);
-            gbd.setup("#vGastosDia",15,"{{start_date}}","{{end_date}}","{% url 'visualizaciones:entidad_pagos_index'%}"+"{{ entidad.id }}"+"/");
-            d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/day", gbd.draw);
         });
     </script>
 {% endblock %}

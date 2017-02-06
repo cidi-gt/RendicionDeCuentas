@@ -124,7 +124,7 @@ Bubble.setup = function(mainDiv, width, height, startDate, endDate, varRadius, c
                     self.coloringVar.forEach(function(element, index){
                         coloringTip += self.coloringTipLabels[index]+d[element]+"</br>";
                     });
-                    self.tooltip.html("<h6>"+d.name+"</h6>"+
+                    self.tooltip.html("<h3>"+d.name+"</h3>"+
                                 "Gastado: Q "+parseFloat(d.t_radius).formatMoney(2)+"</br>"+
                                 coloringTip
                                 )

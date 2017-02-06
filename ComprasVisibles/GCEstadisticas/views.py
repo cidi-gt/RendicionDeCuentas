@@ -20,8 +20,8 @@ app_name = 'visualizaciones'
 def index(request):
     opciones_pagina = {
         'Cantidad gastada por dia (sumarización para todas las entidades)':app_name+':entidad_pagos_index',
-        'Comparativo de gastos entre todas las entidades':app_name+':entidad_comparativo',
-        'Comparativo de gastos de las municipalidades':app_name+':municipio_index',
+        'Comparativo de gastos entre entidades':app_name+':entidad_comparativo',
+        'Comparativo de gastos por municipio':app_name+':municipio_index',
         'Comparativo de gastos por modalidad':app_name+':modalidad_index',
         'Comparativo de gastos por categoria':app_name+':categoria_index',
         'Vista por Entidad':app_name+':entidad_index'
