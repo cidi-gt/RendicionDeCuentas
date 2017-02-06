@@ -52,7 +52,6 @@
     <h3>Proveedores</h3>
     <div class="row">
         <button id="btnAdjudicados" class="btn btn-success" type="button">NOGs adjudicados</button>
-        <button id="btnParticiparon" class="btn btn-info" type="button">NOGs con propuesta</button>
     </div>
     <div id="vProve" class="visualization">
     </div>
@@ -90,8 +89,8 @@
         jQuery(document).ready(function() {
             gbe = Object.create(Bubble);
             varRadius = 't_ammount';
-            coloringVar = ['t_awarded','t_proposed'];
-            coloringTipLabels = ['Cantidad de NOGs adjudicados: ', 'Cantidad de NOGs en los que hicieron propuesta: '];
+            coloringVar = ['t_awarded'];
+            coloringTipLabels = ['Cantidad de NOGs adjudicados: '];
             gbe.setup("#vProve",0,0,"{{start_date}}","{{end_date}}",varRadius,coloringVar, coloringTipLabels,"proveedor");
             d3.json("{% url 'visualizaciones:entidad_item' entidad.id %}{{start_date}}/{{end_date}}/prove", gbe.draw);
         });

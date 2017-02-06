@@ -165,10 +165,10 @@ Bubble.setup = function(mainDiv, width, height, startDate, endDate, varRadius, c
                                             return gradientColor('#C1F4D5','#00441b',coloringScale[0](observedVar));
                                             break;
                                         case 1:
-                                            return gradientColor('#C6DEFF','#08306b',coloringScale[0](observedVar));
+                                            return gradientColor('#FCE4AB','#EC971F',coloringScale[0](observedVar));
                                             break;
                                         case 2:
-                                            return gradientColor('#FCE4AB','#EC971F',coloringScale[0](observedVar));
+                                            return gradientColor('#C6DEFF','#08306b',coloringScale[0](observedVar));
                                             break;
                                     }
         });

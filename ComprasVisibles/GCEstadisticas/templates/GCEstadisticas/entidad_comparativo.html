@@ -25,7 +25,6 @@
 {% block visualization %}
     <div class="row">
         <button id="btnAdjudicados" class="btn btn-success" type="button">Proveedores adjudicados</button>
-        <button id="btnParticiparon" class="btn btn-info" type="button">Proveedores que participaron</button>
         <button id="btnNogs" class="btn btn-warning" type="button">Cantidad de nogs</button>
     </div>
     <div id="visualization" class="visualization">
@@ -45,8 +44,8 @@
         jQuery(document).ready(function() {
             gbe = Object.create(Bubble);
             varRadius = 't_ammount';
-            coloringVar = ['t_suppliers_awarded','t_suppliers_proposed','t_nogs'];
-            coloringTipLabels = ["Proveedores que ganaron adjudicación (almenos una vez): ", "Proveedores que hicieron propuestas: ", "Cantidad de NOGs: "];
+            coloringVar = ['t_suppliers_awarded','t_nogs'];
+            coloringTipLabels = ["Proveedores que ganaron adjudicación (almenos una vez): ", "Cantidad de NOGs: "];
             gbe.setup("#visualization",0,0,"{{start_date}}","{{end_date}}",varRadius,coloringVar, coloringTipLabels, "entidad");
             d3.json("{% url 'visualizaciones:entidad_comparativo' %}json/{{start_date}}/{{end_date}}", gbe.draw);
         });
@@ -60,12 +59,8 @@
             gbe.refreshColor(0);
         });
 
-        jQuery('#btnParticiparon').on('click', function(event){
-            gbe.refreshColor(1);
-        });
-
         jQuery('#btnNogs').on('click', function(event){
-            gbe.refreshColor(2);
+            gbe.refreshColor(1);
         });
     </script>
 {% endblock %}

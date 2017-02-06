@@ -27,24 +27,6 @@ def entity_summarized_data(start_date, final_date):
                 )
             ) "supplier_awarded"
             """,[start_date, final_date])
-    kwargs['t_suppliers_proposed'] = RawSQL("""    
-        SELECT
-            COUNT("supplier_proposal"."supplier_id")
-        FROM
-            (
-                SELECT DISTINCT "GCEstadisticas_supplier"."id" as "supplier_id"
-                FROM "GCEstadisticas_requisition"
-                LEFT OUTER JOIN  "GCEstadisticas_proposal" 
-                    ON ("GCEstadisticas_requisition"."nog" = "GCEstadisticas_proposal"."requisition_id")
-                LEFT OUTER JOIN "GCEstadisticas_supplier"
-                    ON ("GCEstadisticas_proposal"."supplier_id" = "GCEstadisticas_supplier"."id")
-                WHERE (
-                    "GCEstadisticas_requisition"."entity_id" = "GCEstadisticas_entity"."id" AND
-                    "GCEstadisticas_requisition"."end_date" >= %s AND
-                    "GCEstadisticas_requisition"."end_date" <= %s 
-                )
-            ) "supplier_proposal"
-        """,[start_date, final_date])
     kwargs['t_nogs'] = RawSQL("""
         SELECT 
             COUNT("GCEstadisticas_requisition"."nog") AS "t_nogs" 
@@ -72,7 +54,7 @@ def entity_summarized_data(start_date, final_date):
                 )
             )
             """,[start_date, final_date])
-    all_data = Entity.objects.annotate(**kwargs).order_by('entity_type')
+    all_data = Entity.objects.annotate(**kwargs)
     return all_data
 
 def muni_summarized_data(start_date, final_date):
@@ -277,26 +259,10 @@ def suppliers_by_entity(start_date, final_date, entity_id):
                         "GCEstadisticas_requisition"."end_date" >= %s AND
                         "GCEstadisticas_requisition"."end_date" <= %s
                     )
-                ) as t_awarded,
-                (
-                    SELECT
-                        COUNT("GCEstadisticas_proposal"."id") as "t_proposed"
-                    FROM
-                        "GCEstadisticas_proposal"
-                    INNER JOIN "GCEstadisticas_requisition"
-                        ON 
-                            "GCEstadisticas_proposal"."requisition_id" = "GCEstadisticas_requisition"."nog"
-                    WHERE (
-                        "GCEstadisticas_proposal"."supplier_id" = "GCEstadisticas_supplier"."id" AND
-                        "GCEstadisticas_requisition"."entity_id" = %s AND
-                        "GCEstadisticas_requisition"."end_date" >= %s AND
-                        "GCEstadisticas_requisition"."end_date" <= %s
-                    )
-                ) as t_proposed
+                ) as t_awarded
             FROM "GCEstadisticas_supplier"
         ) q
-        WHERE q.t_ammount > 0        
-        """, [entity_id, start_date, final_date, entity_id, start_date, final_date, entity_id, start_date, final_date])
+        """, [entity_id, start_date, final_date, entity_id, start_date, final_date])
     compiled_data = []
     for item in summary_data:
         entity_data = {}
@@ -306,7 +272,6 @@ def suppliers_by_entity(start_date, final_date, entity_id):
         entity_data['name'] = item.name
         entity_data['t_ammount'] = item.t_ammount
         entity_data['t_awarded'] = item.t_awarded
-        entity_data['t_proposed'] = item.t_proposed
         compiled_data.append(entity_data)
     return compiled_data
 
