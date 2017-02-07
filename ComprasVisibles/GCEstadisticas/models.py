@@ -15,7 +15,7 @@ class Entity(models.Model):
     nit = models.CharField(max_length=12)
     department = models.CharField(max_length=50)
     city = models.CharField(max_length=125)
-    
+
     def __str__(self):
         return 'Entity '+self.name
 
@@ -29,7 +29,7 @@ class PurchaseCategory(models.Model):
 
 class Requisition(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.PROTECT)
-    nog = models.CharField(max_length=16, primary_key=True)
+    nog = models.CharField(max_length=16, null=False, unique=True)
     state = models.CharField(max_length=40)
     modality = models.CharField(max_length=100)
     competition_type = models.CharField(max_length=70)

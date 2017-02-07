@@ -17,7 +17,7 @@ def entity_summarized_data(start_date, final_date):
                 SELECT DISTINCT "GCEstadisticas_supplier"."id" as "supplier_id"
                 FROM "GCEstadisticas_requisition"
                 LEFT OUTER JOIN  "GCEstadisticas_awarded" 
-                    ON ("GCEstadisticas_requisition"."nog" = "GCEstadisticas_awarded"."requisition_id")
+                    ON ("GCEstadisticas_requisition"."id" = "GCEstadisticas_awarded"."requisition_id")
                 LEFT OUTER JOIN "GCEstadisticas_supplier"
                     ON ("GCEstadisticas_awarded"."supplier_id" = "GCEstadisticas_supplier"."id")
                 WHERE (
@@ -29,7 +29,7 @@ def entity_summarized_data(start_date, final_date):
             """,[start_date, final_date])
     kwargs['t_nogs'] = RawSQL("""
         SELECT 
-            COUNT("GCEstadisticas_requisition"."nog") AS "t_nogs" 
+            COUNT("GCEstadisticas_requisition"."id") AS "t_nogs" 
         FROM "GCEstadisticas_requisition" 
         WHERE ( 
             "GCEstadisticas_requisition"."entity_id" = "GCEstadisticas_entity"."id" AND
@@ -45,7 +45,7 @@ def entity_summarized_data(start_date, final_date):
         WHERE
             "GCEstadisticas_awarded"."requisition_id" IN (
                 SELECT
-                    "GCEstadisticas_requisition"."nog"
+                    "GCEstadisticas_requisition"."id"
                 FROM "GCEstadisticas_requisition"
                 WHERE ( 
                     "GCEstadisticas_requisition"."entity_id" = "GCEstadisticas_entity"."id" AND
@@ -77,7 +77,7 @@ def summarized_ammount_by_day(start_date, final_date, entity_id=None, supplier_i
             INNER JOIN "GCEstadisticas_requisition"
                 ON "GCEstadisticas_entity"."id" = "GCEstadisticas_requisition"."entity_id"
             INNER JOIN "GCEstadisticas_awarded"
-                ON ("GCEstadisticas_requisition"."nog" = "GCEstadisticas_awarded"."requisition_id")
+                ON ("GCEstadisticas_requisition"."id" = "GCEstadisticas_awarded"."requisition_id")
             WHERE(
                 "GCEstadisticas_requisition"."end_date" >= %s AND 
                 "GCEstadisticas_requisition"."end_date" <= %s
@@ -106,7 +106,7 @@ def entity_modality(start_date, final_date):
         INNER JOIN "GCEstadisticas_requisition"
             ON ("GCEstadisticas_entity"."id" = "GCEstadisticas_requisition"."entity_id")
         INNER JOIN "GCEstadisticas_awarded"
-            ON ("GCEstadisticas_requisition"."nog" = "GCEstadisticas_awarded"."requisition_id")
+            ON ("GCEstadisticas_requisition"."id" = "GCEstadisticas_awarded"."requisition_id")
         WHERE("GCEstadisticas_requisition"."end_date" >= %s and "GCEstadisticas_requisition"."end_date" <= %s)
         GROUP BY 1,4
         """, [start_date, final_date])
@@ -144,11 +144,11 @@ def category_summary(start_date,final_date):
             ) "GCErc"
                 ON "GCEstadisticas_purchasecategory"."id" = "GCErc"."purchasecategory_id"
             INNER JOIN "GCEstadisticas_requisition"
-                ON "GCEstadisticas_requisition"."nog" = "GCErc"."requisition_id"
+                ON "GCEstadisticas_requisition"."id" = "GCErc"."requisition_id"
             INNER JOIN "GCEstadisticas_entity"
                 ON "GCEstadisticas_entity"."id" = "GCEstadisticas_requisition"."entity_id"
             INNER JOIN "GCEstadisticas_awarded"
-                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
             WHERE("GCEstadisticas_requisition"."end_date" >= %s and "GCEstadisticas_requisition"."end_date" <= %s)
             GROUP BY 1,3
             """, [start_date, final_date])
@@ -180,9 +180,9 @@ def category_summary(start_date,final_date):
                     GROUP BY 1
                     HAVING COUNT("GCEstadisticas_requisition_categories"."requisition_id") > 1 
                 ) "GCErc"
-                    ON "GCErc"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                    ON "GCErc"."requisition_id" = "GCEstadisticas_requisition"."id"
                 INNER JOIN "GCEstadisticas_awarded"
-                    ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                    ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
                 WHERE("GCEstadisticas_requisition"."end_date" >=  %s and "GCEstadisticas_requisition"."end_date" <=  %s)
                 GROUP BY 1,3
             """, [start_date, final_date])
@@ -237,7 +237,7 @@ def suppliers_by_entity(start_date, final_date, entity_id):
                         "GCEstadisticas_awarded"
                     INNER JOIN "GCEstadisticas_requisition"
                         ON 
-                            "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                            "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
                     WHERE (
                         "GCEstadisticas_awarded"."supplier_id" = "GCEstadisticas_supplier"."id" AND
                         "GCEstadisticas_requisition"."entity_id" = %s AND
@@ -252,7 +252,7 @@ def suppliers_by_entity(start_date, final_date, entity_id):
                         "GCEstadisticas_awarded"
                     INNER JOIN "GCEstadisticas_requisition"
                         ON 
-                            "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                            "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
                     WHERE (
                         "GCEstadisticas_awarded"."supplier_id" = "GCEstadisticas_supplier"."id" AND
                         "GCEstadisticas_requisition"."entity_id" = %s AND
@@ -297,11 +297,11 @@ def entity_category_summary(start_date,final_date, entity_id):
             ) "GCErc"
                 ON "GCEstadisticas_purchasecategory"."id" = "GCErc"."purchasecategory_id"
             INNER JOIN "GCEstadisticas_requisition"
-                ON "GCEstadisticas_requisition"."nog" = "GCErc"."requisition_id"
+                ON "GCEstadisticas_requisition"."id" = "GCErc"."requisition_id"
             INNER JOIN "GCEstadisticas_entity"
                 ON "GCEstadisticas_entity"."id" = "GCEstadisticas_requisition"."entity_id"
             INNER JOIN "GCEstadisticas_awarded"
-                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
             WHERE(
                 "GCEstadisticas_requisition"."end_date" >= %s AND 
                 "GCEstadisticas_requisition"."end_date" <= %s AND
@@ -335,9 +335,9 @@ def entity_category_summary(start_date,final_date, entity_id):
                     GROUP BY 1
                     HAVING COUNT("GCEstadisticas_requisition_categories"."requisition_id") > 1 
                 ) "GCErc"
-                    ON "GCErc"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                    ON "GCErc"."requisition_id" = "GCEstadisticas_requisition"."id"
                 INNER JOIN "GCEstadisticas_awarded"
-                    ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                    ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
                 WHERE(
                     "GCEstadisticas_requisition"."end_date" >=  %s AND 
                     "GCEstadisticas_requisition"."end_date" <=  %s AND
@@ -382,7 +382,7 @@ def entity_modality_summary(start_date, final_date, entity_id=None, supplier_id=
         INNER JOIN "GCEstadisticas_requisition"
             ON ("GCEstadisticas_entity"."id" = "GCEstadisticas_requisition"."entity_id")
         INNER JOIN "GCEstadisticas_awarded"
-            ON ("GCEstadisticas_requisition"."nog" = "GCEstadisticas_awarded"."requisition_id")
+            ON ("GCEstadisticas_requisition"."id" = "GCEstadisticas_awarded"."requisition_id")
         INNER JOIN "GCEstadisticas_supplier"
             ON ("GCEstadisticas_supplier"."id" = "GCEstadisticas_awarded"."supplier_id")
         WHERE( 
@@ -442,11 +442,11 @@ def supplier_category_summary(start_date,final_date, supplier_id):
             ) "GCErc"
                 ON "GCEstadisticas_purchasecategory"."id" = "GCErc"."purchasecategory_id"
             INNER JOIN "GCEstadisticas_requisition"
-                ON "GCEstadisticas_requisition"."nog" = "GCErc"."requisition_id"
+                ON "GCEstadisticas_requisition"."id" = "GCErc"."requisition_id"
             INNER JOIN "GCEstadisticas_entity"
                 ON "GCEstadisticas_entity"."id" = "GCEstadisticas_requisition"."entity_id"
             INNER JOIN "GCEstadisticas_awarded"
-                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
             INNER JOIN "GCEstadisticas_supplier"
                 ON "GCEstadisticas_supplier"."id" = "GCEstadisticas_awarded"."supplier_id"
             WHERE(
@@ -483,9 +483,9 @@ def supplier_category_summary(start_date,final_date, supplier_id):
                 GROUP BY 1
                 HAVING COUNT("GCEstadisticas_requisition_categories"."requisition_id") > 1 
             ) "GCErc"
-                ON "GCErc"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                ON "GCErc"."requisition_id" = "GCEstadisticas_requisition"."id"
             INNER JOIN "GCEstadisticas_awarded"
-                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."nog"
+                ON "GCEstadisticas_awarded"."requisition_id" = "GCEstadisticas_requisition"."id"
             INNER JOIN "GCEstadisticas_supplier"
                 ON "GCEstadisticas_supplier"."id" = "GCEstadisticas_awarded"."supplier_id"
             WHERE(
