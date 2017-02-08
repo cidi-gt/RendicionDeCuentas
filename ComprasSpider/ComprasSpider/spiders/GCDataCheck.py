@@ -56,15 +56,15 @@ class GCDataCheck(scrapy.Spider):
     }
     
     def __init__(self, fecha_ini='', fecha_fin='', filename='checker', postfix='_check'):
+        #if there are not dates as parameters, set from start of the time to the day before to check
         if (fecha_ini.strip() == '') and (fecha_fin.strip() == ''):
             fecha_ini = '01.enero.2008'
             tz = pytz.timezone('America/Guatemala')
             yesterday = timezone.localtime(timezone.now()).replace(tzinfo=pytz.timezone('America/Guatemala')) + relativedelta(days=-1)
             fecha_fin = format_date(yesterday, "dd.LLLL.YYYY", locale='es_GT')
             postfix='_check'+format_date(yesterday,"YYYYMMdd", locale='es_GT')
-        else:
-            self.fecha_ini = fecha_ini
-            self.fecha_fin = fecha_fin
+        self.fecha_ini = fecha_ini
+        self.fecha_fin = fecha_fin
         self.filename = 'crawls/checks/'+filename
         self.postfix = postfix
         self.formdata['MasterGC$ContentBlockHolder$txtFechaIni'] = fecha_ini
